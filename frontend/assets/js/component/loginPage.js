@@ -5,18 +5,26 @@ export function LoginPage(){
         <div class="form-container active-form  sign-up" id="sign-up-form">
             <form id="RegisterForm">
                 <h1>Create Account</h1>
+<<<<<<< HEAD:frontend/assets/js/component/loginPage.js
                 <div style="justify-content: space-between; display: flex; gap: 10px;">
                     <input type="text" name="first-name" placeholder="First Name" required>
+=======
+                <div style="justify-content: space-between; display: flex; gap: 30px; width: 100%;">
+                    <input type="text" id="" name="first-name" placeholder="First Name" required>
+>>>>>>> 1056be1 (stattus):frontend/templates/register.html
                     <!-- <div id="usernameMessage" class="message"><i class="material-icons check-uncheck"
                             style="font-size: 10px;">&#xe5c9;</i> Username must contain only letters and numbers.</div> -->
                     <input type="text" name="last-name" placeholder="Last Name" required>
 
                 </div>
-                <select name="gender" id="gender" style="display: flex; justify-content: space-between;">
-                    <option value="">Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>                
+                <div style="justify-content: space-between; display: flex; gap: 30px; width: 100%;" >
+                    <select name="gender" id="gender" style="display: flex; justify-content: space-between;">
+                        <option value="">Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>         
+                    <input type="number" id="" name="age" placeholder="Age" required>      
+                </div>
                 
                 <input type="text" id="user" name="username" placeholder="Username" required>
                 <div id="usernameMessage" class="message"><i class="material-icons check-uncheck"

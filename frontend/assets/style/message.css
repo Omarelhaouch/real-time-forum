@@ -41,6 +41,7 @@
 
 .messages-area {
   flex: 1;
+<<<<<<< HEAD
   display: flex;
   flex-direction: column;
   height: calc(100% - 70px);
@@ -50,6 +51,12 @@
 #chat {
   margin-bottom: 70px;
   overflow-y: auto;
+=======
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 173px;
+>>>>>>> 1c42004 (stattus)
 }
 
 .messages {

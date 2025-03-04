@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+<<<<<<< HEAD
+=======
+	"log"
+>>>>>>> 1056be1 (stattus)
 	"net/http"
 	"regexp"
 	"strconv"
@@ -66,7 +70,11 @@ func MiddleWear(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+<<<<<<< HEAD
 func JsResponse(w http.ResponseWriter, status int, msgStatus bool, data any) {
+=======
+func JsResponse(w http.ResponseWriter, status int, msgStatus bool, data interface{}) {
+>>>>>>> 1056be1 (stattus)
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status": msgStatus,
@@ -118,9 +126,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+<<<<<<< HEAD
 	fmt.Println("Invalid email or username")
 
 	err = bcrypt.CompareHashAndPassword([]byte(hpassword), []byte(Data.Password))
+=======
+	fmt.Println(uid,email,upass)
+	err = bcrypt.CompareHashAndPassword([]byte(hpassword), []byte(upass))
+>>>>>>> 1056be1 (stattus)
 	if err != nil {
 		// JsResponse(w, false, "Invalid email or username")
 		return
@@ -224,41 +237,57 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	uemail := r.Form.Get("email")
-	uname := r.Form.Get("username")
-	upass := r.Form.Get("password")
+
+	firstName := r.Form.Get("first-name")
+	lastName := r.Form.Get("last-name")
+	gender := r.Form.Get("gender")
+	email := r.Form.Get("email")
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+
+	age, err := strconv.Atoi(r.Form.Get("age"))
+
 	structError := map[string]interface{}{
 		"StatuCode":    http.StatusBadRequest,
-		"MessageError": errors.New("email or username already taken"),
+		"MessageError": errors.New("invalid input"),
 		"Register":     true,
 	}
-	if !email_RGX.MatchString(uemail) || !username_RGX.MatchString(uname) || !validpassword(upass) {
+
+	if firstName == "" || lastName == "" || gender == "" || age <= 0 {
+		structError["MessageError"] = "all fields are required"
+		ErrorPage(w, "register.html", structError)
+		return
+	}
+
+	if !email_RGX.MatchString(email) || !username_RGX.MatchString(username) || !validpassword(password) {
 		structError["MessageError"] = "invalid email or username"
 		ErrorPage(w, "register.html", structError)
 		return
 	}
 
-	exist := CheckUserExists(uemail, uname)
+	exist := CheckUserExists(email, username)
 	if exist {
 		structError["MessageError"] = "email or username already taken"
 		ErrorPage(w, "register.html", structError)
 		return
 	}
 
-	uid, err := database.CreateUser(DB, uemail, uname, upass)
+	uid, err := database.CreateUser(DB, firstName, lastName, gender, age, email, username, password)
 	if err != nil {
 		structError["StatuCode"] = http.StatusInternalServerError
 		structError["MessageError"] = "something wrong, please try later"
 		ErrorPage(w, "register.html", structError)
 		return
 	}
-	token, err := tokening.GenerateSessionToken("username:" + uname)
+
+	token, err := tokening.GenerateSessionToken("username:" + username)
 	if err != nil {
 		structError["StatuCode"] = http.StatusInternalServerError
 		structError["MessageError"] = "something wrong, please try later"
 		ErrorPage(w, "register.html", structError)
 		return
 	}
+
 	err = database.AddSessionToken(DB, uid, token)
 	if err != nil {
 		structError["StatuCode"] = http.StatusInternalServerError
@@ -266,6 +295,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "register.html", structError)
 		return
 	}
+
 	SetCookie(w, token, "session", true)
 	http.Redirect(w, r, "/", http.StatusFound)
 }

@@ -59,13 +59,20 @@
   flex-wrap: wrap;
   align-items: flex-start;
   width: 100%;
+<<<<<<< HEAD
   /* min-height: 100px; */
+=======
+  min-height: 100px;
+>>>>>>> 1056be1 (stattus)
   padding: 12px 16px 0 16px;
   background-color: var(--WhiteBlue);
   border-radius: 10px;
   box-shadow: 0px 3px 10px hwb(0 0% 80% / 0.32);
   gap: 12px;
+<<<<<<< HEAD
   height: fit-content;
+=======
+>>>>>>> 1056be1 (stattus)
 }
 
 .post-card-details {

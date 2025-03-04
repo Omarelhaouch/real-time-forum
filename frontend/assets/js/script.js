@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 import { apiRequest } from "./apiRequest.js";
 import { HandleLikes } from "./likes.js";
 import { AVATAR_URL, LoadPage } from "./spa.js";
 
+=======
+>>>>>>> 1056be1 (stattus)
 const UrlParams = new URLSearchParams(window.location.search);
 const sidebardLeft = document.querySelector(".sidebar-left");
 const windowMedia = window.matchMedia("(min-width: 768px)");
@@ -305,6 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   setInterval(updateAllTimes, 50000);
 });
+<<<<<<< HEAD
 
 //////////////// Start Listning dropDown List For Posts ////////////
 function postControlList() {
@@ -366,3 +370,8 @@ console.log("xxxx");
 console.log("xxxx");
 console.log("xxxx");
 console.log("xxxx");
+=======
+infiniteScroll();
+fetchPosts(0, type);
+readPost();
+>>>>>>> 1056be1 (stattus)
