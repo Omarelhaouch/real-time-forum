@@ -19,10 +19,11 @@ document.addEventListener("click", (event) => {
 // Change friend
 const friends_list = document.querySelector(".friends-list");
 const chat_box = document.querySelector(".chat-box");
-const friend = document.querySelector(".friend");
-const back = document.querySelector(".back");
-const close_message = document.querySelector(".close-message");
 if (window.innerWidth <= 780) {
+  const friend = document.querySelector(".friend");
+  const back = document.querySelector(".back");
+  const close_message = document.querySelector(".close-message");
+
   if (friend) {
     friend.addEventListener("click", () => {
       friends_list.style.display = "none";
@@ -88,7 +89,6 @@ messageInput.addEventListener("keypress", (e) => {
   }
 });
 
-// websockets
 function connectWebSocket() {
   ws = new WebSocket("ws://localhost:9090/ws");
 
@@ -127,9 +127,6 @@ function connectWebSocket() {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   };
-
-  // <div>${data.username}</div>
-
   ws.onerror = (event) => console.log(event);
   ws.onclose = () => {
     console.log("Disconnected from chat");
@@ -150,7 +147,7 @@ function addFriend(friends, userIds, userStatuses) {
     friendElement.innerHTML = `
           <div class="friend-avatar">
               <img src="../../assets/images/profile.png" class="profile-img" alt="${friend}">
-              <div class="status" id="user-${userId}"></div>
+              <div class="status ${status}" id="user-${userId}"></div>
           </div>
           <div class="friend-info">
               <div class="friend-name">${friend}</div>

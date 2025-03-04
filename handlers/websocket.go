@@ -86,7 +86,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	connectedUsers.m[userID] = userConn
 	connectedUsers.Unlock()
 	BroadcastUsersList()
-	GetChatHistory(userID)
 	broadcastStatus(userID, username, true)
 
 	defer func() {
@@ -97,7 +96,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		broadcastStatus(userID, username, false)
 	}()
 
-	// Handle incoming messages
 	for {
 		var msg Message
 		err := conn.ReadJSON(&msg)
@@ -122,7 +120,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		msg.ReceiverID = receiver_id
 		msg.Timestamp = time.Now()
 
-		// Save message to database
 		err = saveMessage(msg)
 		if err != nil {
 			log.Printf("Error saving message: %v", err)
