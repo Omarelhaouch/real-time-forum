@@ -52,7 +52,7 @@ const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
 const messagesArea = document.getElementById("messages");
 const r = document.getElementById("user-receiver");
-
+const chat = document.getElementById("chat");
 function sendMessage() {
   const message = messageInput.value.trim();
   if (message) {
@@ -73,8 +73,10 @@ function sendMessage() {
     const messageDiv = document.createElement("div");
     messageDiv.className = "messages sent";
     messageDiv.innerHTML = `
-    <div>${message}</div>
-<div class="message-time">${time}</div>
+      <div class="message-bubble">
+          <div class="message-content">${message}</div>
+          <div class="message-time">${time}</div>
+      </div>
 `;
     messagesArea.appendChild(messageDiv);
     messageInput.value = "";
@@ -102,12 +104,7 @@ function connectWebSocket() {
       addFriend(data.usernames, data.user_ids, data.user_statuses);
       return;
     }
-    if (data.type === "chat_history") {
-      displayChatHistory(data.messages);
-      return;
-  }
     if (data.type === "message") {
-      const messagesContainer = document.querySelector(".messages-area");
       const messageElement = document.createElement("div");
       messageElement.className = "messages received";
       const time = new Date().toLocaleTimeString([], {
@@ -117,14 +114,13 @@ function connectWebSocket() {
       messageElement.innerHTML = `
         <div class="message-bubble">
           <div class="message-content">${data.content}</div>
-          <div class="message-details">
-        <span class="message-author">${data.username}</span>
-        <span class="message-time">${time}</span>
-          </div>
+          <div class="message-time">${time}</div>
         </div>
       `;
-      messagesContainer.appendChild(messageElement);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      // <div class="message-details">
+      // <span class="message-author">${data.username}</span>
+      messagesArea.appendChild(messageElement);
+      messagesArea.scrollTop = messagesArea.scrollHeight;
     }
   };
   ws.onerror = (event) => console.log(event);
@@ -159,13 +155,91 @@ function addFriend(friends, userIds, userStatuses) {
     statusElement.classList.toggle("offline", status === "offline");
 
     friendElement.addEventListener("click", () => {
+      messagesArea.innerHTML = "";
       const show_user = document.getElementById("user-receiver");
       friends_list.style.display = window.innerWidth <= 780 ? "none" : "block";
       chat_box.style.display = "flex";
       show_user.innerText = friend;
+      fetchChatHistory(userId, 0);
     });
 
     friendsList.appendChild(friendElement);
   });
 }
 connectWebSocket();
+let isLoading = false;
+let messageOffset = 0;
+const MESSAGES_PER_PAGE = 10;
+
+async function fetchChatHistory(userId, offset = 0) {
+  await fetch(`/api/chat/history?user_id=${userId}&offset=${offset}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Error fetching chat history: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      data.messages.reverse().forEach((mess) => {
+        const messageDiv = displayMessage(mess, userId);
+        messagesArea.appendChild(messageDiv);
+      });
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+    })
+    .catch((error) => {
+      console.error(error);
+      return [];
+    });
+}
+
+// Message display functions
+function displayMessage(message, currentUserId) {
+  const messageDiv = document.createElement("div");
+  const time = new Date(message.timestamp).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  // Fix message direction logic
+  const isSent = parseInt(message.sender_id) !== parseInt(currentUserId);
+  messageDiv.className = `messages ${isSent ? "sent" : "received"}`;
+
+  messageDiv.innerHTML = `
+    <div class="message-bubble">
+      <div class="message-content">${message.content}</div>
+      <div class="message-time">${time}</div>
+    </div>
+  `;
+  return messageDiv;
+}
+
+function displayChatHistory(messages, currentUserId) {
+  messages.forEach((message) => {
+    messagesArea.appendChild(displayMessage(message, currentUserId));
+  });
+}
+
+// Scroll handler for infinite loading
+// document.getElementById("messages").addEventListener("scroll", async (e) => {
+//   const messagesArea = e.target;
+
+//   if (chat.scrollTop === 0 && !isLoading) {
+//     isLoading = true;
+//     messageOffset += MESSAGES_PER_PAGE;
+
+//     const userId = document.getElementById("user-receiver").dataset.userId;
+//     await fetchChatHistory(userId, messageOffset);
+
+//     isLoading = false;
+//   }
+// });
+
+// Load initial messages when selecting a chat
+// async function loadInitialChat(userId) {
+//   const messages = await fetchChatHistory(userId);
+//   const messagesArea = document.getElementById("messages");
+//   messagesArea.innerHTML = "";
+//   messageOffset = 0;
+//   displayChatHistory(messages, currentUserId);
+//   chat.scrollTop = chat.scrollHeight;
+// }
