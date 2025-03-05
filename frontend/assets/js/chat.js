@@ -219,7 +219,7 @@ function displayChatHistory(messages, currentUserId) {
   });
 }
 
-// Scroll handler for infinite loading
+// Scrol handler for infinite loading
 // document.getElementById("messages").addEventListener("scroll", async (e) => {
 //   const messagesArea = e.target;
 
