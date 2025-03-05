@@ -2,12 +2,16 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
 
 func GetChatHistory(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("--------------------------------------")
+	if r.Method != "GET" {
+		ErrorJs(w, http.StatusMethodNotAllowed, errors.New("invalid method"))
+		return
+	}
 	userID, err := CheckAuthentication(w, r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -64,7 +68,6 @@ func GetChatHistory(w http.ResponseWriter, r *http.Request) {
 		}
 		messages = append(messages, msg)
 	}
-	fmt.Println("+++++++++++++++++", messages)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string][]Message{"messages": messages})
 }
