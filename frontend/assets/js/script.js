@@ -214,6 +214,10 @@ export function infiniteScroll() {
                 return
               }
             }
+            if (elem.id == "message"){
+              elem.hidden = false
+              return
+            }
             const LinkHref = elem.getAttribute("href")
             const params = new URLSearchParams(LinkHref.split("?")[1])
             const type = params.get("type") || "home"
@@ -403,6 +407,7 @@ export function postControlList() {
       ListnerMap.set(document, handleClickOutside);
   })
 }
+<<<<<<< HEAD
 
 const Links = document.querySelectorAll(".Links")
 Links.forEach(elem => {
@@ -456,3 +461,5 @@ readPost();
 =======
 })
 >>>>>>> 14783ce (Final SPA)
+=======
+>>>>>>> d3ca0cf (Adding omar changes to mien)
