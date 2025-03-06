@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"unicode"
 
 	"forum/database"
@@ -76,7 +77,7 @@ func JsResponse(w http.ResponseWriter, status int, msgStatus bool, data any) {
 func JsResponse(w http.ResponseWriter, status int, msgStatus bool, data interface{}) {
 >>>>>>> 1056be1 (stattus)
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"status": msgStatus,
 		"data":   data,
 	})
@@ -91,12 +92,17 @@ func Checker(w http.ResponseWriter, r *http.Request) {
 	var data map[string]interface{}
 	if check {
 		data = map[string]interface{}{
-			"Test": "Checker Function in golang",
+			"UserName": "",
 		}
 	}
 	JsResponse(w, status, check, data)
 }
 func Login(w http.ResponseWriter, r *http.Request) {
+	var data = map[string]any{
+		"status":  false,
+		"token":   "",
+		"message": "",
+	}
 	fmt.Println("Start Connect")
 	Data := struct {
 		Email    string
@@ -106,11 +112,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("=========================\n", Data)
 	r.ParseForm()
 	if Data.Email == "" || Data.Password == "" {
-		// JsResponse(w, false, "Email or username is required", nil)
+		data["message"] = "Email or username is required"
+		JsResponse(w, http.StatusUnauthorized, false, data)
 		return
 	}
 	if !validpassword(Data.Password) {
-		// JsResponse(w, false, "Invalid Password")
+		data["message"] = "Invalid Password"
+		JsResponse(w, http.StatusUnauthorized, false, data)
 		return
 	}
 	fmt.Println("Invalid Password")
@@ -122,7 +130,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil || hpassword == "" {
 		hpassword, uid, err = database.GetUserByUname(DB, Data.Email)
 		if err != nil || hpassword == "" {
-			// JsResponse(w, false, "Invalid email or username")
+			data["message"] = "Invalid Email or Password"
+			JsResponse(w, http.StatusUnauthorized, false, data)
 			return
 		}
 	}
@@ -135,7 +144,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	err = bcrypt.CompareHashAndPassword([]byte(hpassword), []byte(upass))
 >>>>>>> 1056be1 (stattus)
 	if err != nil {
-		// JsResponse(w, false, "Invalid email or username")
+		data["message"] = "Invalid Email or Usermame"
+		JsResponse(w, http.StatusUnauthorized, false, data)
 		return
 	}
 
@@ -143,24 +153,24 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := tokening.GenerateSessionToken("email:" + Data.Email)
 	if err != nil {
-		// JsResponse(w, false, "Error Creating a session")
+		data["message"] = "Something wrong please try later..."
+		JsResponse(w, http.StatusInternalServerError, false, data)
 		return
 	}
 	fmt.Println("tdg")
 
 	err = database.AddSessionToken(DB, uid, token)
 	if err != nil {
-		// JsResponse(w, false, "internal server error")
+		data["message"] = "Something wrong please try again later..."
+		JsResponse(w, http.StatusInternalServerError, false, data)
 		return
 	}
 	SetCookie(w, token, "session", true)
 	fmt.Println("Connected Sucssefully")
 	// func JsResponse(w http.ResponseWriter, status int, msgStatus bool, data interface{}) {
-	var data = map[string]any{
-		"status": true,
-		"token":  token,
-	}
-	JsResponse(w, 200, true, data)
+	data["status"] = true
+	data["token"] = token
+	JsResponse(w, http.StatusOK, true, data)
 
 	// JsResponse(w, true, "User Logged Succesfully")
 	// Commented Part Bellow is belong to the old Forum PAGE :D
@@ -232,27 +242,72 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
-	redirected := RedirectToHomeIfAuthenticated(w, r)
-	if redirected {
+
+	var Data struct {
+		Email     string
+		UserName  string
+		Gender    string
+		FirstName string
+		LastName  string
+		Password  string
+		Age       string
+	}
+	var RespondData = map[string]any{
+		"status":  false,
+		"token":   "",
+		"message": "",
+	}
+	json.NewDecoder(r.Body).Decode(&Data)
+	// redirected := RedirectToHomeIfAuthenticated(w, r)
+	// if redirected {
+	// 	return
+	// }
+	// r.ParseForm()
+	// uemail := r.Form.Get("email")
+	// uname := r.Form.Get("username")
+	// upass := r.Form.Get("password")
+	// structError := map[string]interface{}{
+	// 	"StatuCode":    http.StatusBadRequest,
+	// 	"MessageError": errors.New("email or username already taken"),
+	// 	"Register":     true,
+	// }
+	// Gender    string
+	// 	FirstName string
+	// 	LastName  string
+	if (!email_RGX.MatchString(Data.Email)) ||
+		(!username_RGX.MatchString(Data.UserName)) {
+		RespondData["message"] = "Email or Username is not valid."
+		JsResponse(w, http.StatusBadRequest, false, RespondData)
 		return
 	}
-	r.ParseForm()
+	// r.ParseForm()
 
+<<<<<<< HEAD
 	firstName := r.Form.Get("first-name")
 	lastName := r.Form.Get("last-name")
 	gender := r.Form.Get("gender")
 	email := r.Form.Get("email")
 	username := r.Form.Get("username")
 	password := r.Form.Get("password")
+=======
+	// // Get form values
+	// firstName := r.Form.Get("first-name")
+	// lastName := r.Form.Get("last-name")
+	// gender := r.Form.Get("gender")
+	// email := r.Form.Get("email")
+	// username := r.Form.Get("username")
+	// password := r.Form.Get("password")
+>>>>>>> 14783ce (Final SPA)
 
-	age, err := strconv.Atoi(r.Form.Get("age"))
+	// age, err := strconv.Atoi(r.Form.Get("age"))
 
-	structError := map[string]interface{}{
-		"StatuCode":    http.StatusBadRequest,
-		"MessageError": errors.New("invalid input"),
-		"Register":     true,
-	}
+	// structError := map[string]interface{}{
+	// 	"StatuCode":    http.StatusBadRequest,
+	// 	"MessageError": errors.New("invalid input"),
+	// 	"Register":     true,
+	// }
 
+<<<<<<< HEAD
 	if firstName == "" || lastName == "" || gender == "" || age <= 0 {
 		structError["MessageError"] = "all fields are required"
 		ErrorPage(w, "register.html", structError)
@@ -264,40 +319,107 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "register.html", structError)
 		return
 	}
+=======
+	// Validate required fields
+	// if firstName == "" || lastName == "" || gender == "" || age <= 0 {
+	// 	structError["MessageError"] = "all fields are required"
+	// 	ErrorPage(w, "register.html", structError)
+	// 	return
+	// }
 
-	exist := CheckUserExists(email, username)
+	// // Validate email, username and password
+	// if !email_RGX.MatchString(email) || !username_RGX.MatchString(username) || !validpassword(password) {
+	// 	structError["MessageError"] = "invalid email or username"
+	// 	ErrorPage(w, "register.html", structError)
+	// 	return
+	// }
+>>>>>>> 14783ce (Final SPA)
+
+	exist := CheckUserExists(Data.Email, Data.UserName)
 	if exist {
-		structError["MessageError"] = "email or username already taken"
-		ErrorPage(w, "register.html", structError)
+		RespondData["message"] = "email or username already taken."
+		JsResponse(w, http.StatusBadRequest, false, RespondData)
 		return
 	}
 
+	if !(validpassword(Data.Password)) {
+		RespondData["message"] = "Password is not valid."
+		JsResponse(w, http.StatusBadRequest, false, RespondData)
+		return
+	}
+	if strings.Trim(Data.FirstName, " ") == "" && strings.Trim(Data.LastName, " ") == "" {
+		RespondData["message"] = "Please Enter your First And Last Name."
+		JsResponse(w, http.StatusBadRequest, false, RespondData)
+		return
+	}
+	Data.Gender = strings.ToLower(Data.Gender)
+	if Data.Gender != "male" && Data.Gender != "female" {
+		RespondData["message"] = "Please Enter your Gender."
+		JsResponse(w, http.StatusBadRequest, false, RespondData)
+		return
+	}
+	fmt.Println("Age", Data.Age)
+	Age, err := strconv.Atoi(Data.Age)
+	if (err != nil){
+		RespondData["message"] = "Please Enter the age."
+		JsResponse(w, http.StatusBadRequest, false, RespondData)
+		return
+	}
+	if Age < 18 {
+		RespondData["message"] = "You are under the age... Try again after couple years."
+		JsResponse(w, http.StatusBadRequest, false, RespondData)
+		return
+	}
+	if Age > 140 {
+		RespondData["message"] = "its seems you entered incorrect age.."
+		JsResponse(w, http.StatusUnauthorized, false, RespondData)
+		return
+	}
+
+<<<<<<< HEAD
 	uid, err := database.CreateUser(DB, firstName, lastName, gender, age, email, username, password)
+=======
+	// Create user
+	uid, err := database.CreateUser(DB, Data.FirstName, Data.LastName, Data.Gender, Age, Data.Email, Data.UserName, Data.Password)
+>>>>>>> 14783ce (Final SPA)
 	if err != nil {
-		structError["StatuCode"] = http.StatusInternalServerError
-		structError["MessageError"] = "something wrong, please try later"
-		ErrorPage(w, "register.html", structError)
+		RespondData["message"] = "something wrong, please try later"
+		JsResponse(w, http.StatusInternalServerError, false, RespondData)
 		return
 	}
+	// exist := CheckUserExists(uemail, uname)
+	// if exist {
+	// 	structError["MessageError"] = "email or username already taken"
+	// 	ErrorPage(w, "register.html", structError)
+	// 	return
+	// }
 
-	token, err := tokening.GenerateSessionToken("username:" + username)
+	// uid, err = database.CreateUser(DB, Data.Email, Data.UserName, Data.Password)
+	// if err != nil {
+	// 	structError["StatuCode"] = http.StatusInternalServerError
+	// 	structError["MessageError"] = "something wrong, please try later"
+	// 	ErrorPage(w, "register.html", structError)
+	// 	return
+	// }
+	token, err := tokening.GenerateSessionToken("username:" + Data.UserName)
 	if err != nil {
-		structError["StatuCode"] = http.StatusInternalServerError
-		structError["MessageError"] = "something wrong, please try later"
-		ErrorPage(w, "register.html", structError)
+		RespondData["message"] = "Something went wrong, try again later.."
+		JsResponse(w, http.StatusInternalServerError, false, RespondData)
 		return
 	}
 
 	err = database.AddSessionToken(DB, uid, token)
 	if err != nil {
-		structError["StatuCode"] = http.StatusInternalServerError
-		structError["MessageError"] = "something wrong, please try later"
-		ErrorPage(w, "register.html", structError)
+		RespondData["message"] = "Something went wrong, try again later.."
+		JsResponse(w, http.StatusInternalServerError, false, RespondData)
 		return
 	}
 
 	SetCookie(w, token, "session", true)
-	http.Redirect(w, r, "/", http.StatusFound)
+	RespondData["status"] = true
+	RespondData["token"] = token
+	RespondData["message"] = "User Created succesfully"
+	JsResponse(w, http.StatusInternalServerError, true, RespondData)
 }
 
 func validpassword(password string) bool {
