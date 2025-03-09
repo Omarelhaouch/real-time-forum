@@ -314,15 +314,24 @@ function sendMessage() {
       );
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     const messageDiv = createMessageElement(message, time, "sent");
 =======
+=======
+>>>>>>> 189fc2e (add name of sender and make time 24h)
     const messageDiv = document.createElement("div");
     messageDiv.className = "messages sent";
     messageDiv.innerHTML = `
 <div>${message}</div>
 <div class="message-time">${time}</div>
 `;
+<<<<<<< HEAD
 >>>>>>> 1c42004 (stattus)
+=======
+=======
+    const messageDiv = createMessageElement(message, time, "sent", "You");
+>>>>>>> 014bf08 (add name of sender and make time 24h)
+>>>>>>> 189fc2e (add name of sender and make time 24h)
     messagesArea.appendChild(messageDiv);
     messageInput.value = "";
     messagesArea.scrollTop = messagesArea.scrollHeight;
@@ -370,12 +379,16 @@ export function displayMessage(message, currentUserId) {
   const time = new Date(message.timestamp).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
+<<<<<<< HEAD
     hour12: false
+=======
+    hour12: false,
+>>>>>>> 014bf08 (add name of sender and make time 24h)
   });
   const isSent = parseInt(message.sender_id) !== parseInt(currentUserId);
   console.log("Is Sent  ;", isSent);
   
-  return createMessageElement(message.content, time, isSent ? "sent" : "received");
+  return createMessageElement(message.content, time, isSent ? "sent" : "received", message.username);
 }
 
 // Friend List Functions
@@ -577,6 +590,7 @@ connectWebSocket();
       ? new Date(lastTimes[friend]).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
+          hour12: false,
         })
       : "—";
 
