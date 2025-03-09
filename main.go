@@ -42,11 +42,21 @@ func main() {
 	// hub := websocket.NewHub()
 	// go hub.Run()
 	http.HandleFunc("/ws", handlers.HandleWebSocket)
+<<<<<<< HEAD
 	http.HandleFunc("/api/chat/history", handlers.GetChatHistory)
 	// http.HandleFunc("/ws", handlers.HandleMessages)
 	// http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 	// 	handlers.GetAllMessages(hub, w, r)
 	// })
+=======
+<<<<<<< HEAD
+	// http.HandleFunc("/api/chat/history", handlers.GetChatHistory)
+=======
+	http.HandleFunc("/api/chat/history", handlers.GetChatHistory)
+	http.HandleFunc("POST /api/mark-read", handlers.MarkMessagesAsRead)
+>>>>>>> 35b894d (Merge omar with Mine)
+
+>>>>>>> aac72ff (Merge omar with Mine)
 	http.HandleFunc("/", handlers.HomePage)
 	http.HandleFunc("POST /checker", handlers.Checker)
 

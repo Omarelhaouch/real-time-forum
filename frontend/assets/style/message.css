@@ -55,8 +55,22 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   margin-bottom: 173px;
+<<<<<<< HEAD
 >>>>>>> 1c42004 (stattus)
+=======
+=======
+  height: calc(100% - 70px);
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+#chat {
+  margin-bottom: 70px;
+  overflow-y: auto;
+  height: 100%;
+>>>>>>> 35b894d (Merge omar with Mine)
+>>>>>>> aac72ff (Merge omar with Mine)
 }
 
 .messages {
@@ -96,6 +110,16 @@
 }
 .message-athour,
 .message-time {
+<<<<<<< HEAD
+=======
+  position: absolute;
+  font-size: 9px;
+  bottom: 1px;
+  right: 2px;
+}
+
+.sent .message-author{
+>>>>>>> 35b894d (Merge omar with Mine)
   font-size: 10px;
   color: var(--GreeyD);
   position: absolute;

@@ -232,6 +232,71 @@ func BroadcastUsersList() error {
 	return nil
 }
 
+<<<<<<< HEAD
+=======
+func MarkMessagesAsRead(w http.ResponseWriter, r *http.Request) {
+	// Ensure the request method is POST or PUT
+	var Data = map[string]any{
+		"status":  false,
+		"message": "",
+	}
+
+	userID, err := CheckAuthentication(w, r)
+	if err != nil {
+		Data["message"] = "Authonticatoin Not found"
+		JsResponse(w, http.StatusInternalServerError, false, Data)
+		return
+	}
+	// Decode request body
+	var req struct {
+		SenderID   int `json:"sender_id"`
+		ReceiverID int `json:"receiver_id"`
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		Data["message"] = "Invalid JSON data"
+		JsResponse(w, http.StatusBadRequest, false, Data)
+		return
+	}
+	req.SenderID = userID
+	// Debugging log
+	fmt.Printf("Received request to mark messages as read: sender_id=%d, receiver_id=%d\n", req.SenderID, req.ReceiverID)
+
+	// Ensure sender and receiver IDs are valid
+	if req.SenderID <= 0 || req.ReceiverID <= 0 {
+		Data["message"] = "Invalid sender or receiver ID"
+		JsResponse(w, http.StatusBadRequest, false, Data)
+		return
+	}
+
+	// Update unread messages in the database
+	result, err := DB.Exec(`UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND read = 0;`, req.ReceiverID, req.SenderID)
+	if err != nil {
+		Data["message"] = "Failed to update messages"
+		JsResponse(w, http.StatusBadRequest, false, Data)
+		return
+	}
+	fmt.Println()
+	// Debugging log
+	rowsAffected, _ := result.RowsAffected()
+	fmt.Printf("Rows affected: %d\n", rowsAffected)
+
+	// Check if any rows were affected
+	if rowsAffected == 0 {
+		// Return success status even if no rows were affected (No unread messages)
+		Data["message"] = "No unread messages found, but operation completed successfully"
+		JsResponse(w, http.StatusInternalServerError, false, Data)
+		return
+	}
+
+	// Send success response
+	Data["message"] = "Success"
+	Data["status"] = true
+	JsResponse(w, http.StatusOK, true, Data)
+}
+
+>>>>>>> 35b894d (Merge omar with Mine)
 func GetUserIDByUsername(username string) (int, error) {
 	var id int
 	err := DB.QueryRow("SELECT id FROM users WHERE username = ?", username).Scan(&id)
