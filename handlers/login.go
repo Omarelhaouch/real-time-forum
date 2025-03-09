@@ -61,14 +61,13 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	// http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func MiddleWear(w http.ResponseWriter, r *http.Request) bool {
+func MiddleWear(w http.ResponseWriter, r *http.Request) (bool, int) {
 	userID, err := CheckAuthentication(w, r)
 	fmt.Println("User id", userID, "err", err)
 	if userID == 0 || err != nil {
-		userID = 0
-		return false
+		return false, 0
 	}
-	return true
+	return true, userID
 }
 
 <<<<<<< HEAD
@@ -79,8 +78,17 @@ func JsResponse(w http.ResponseWriter, status int, msgStatus bool, data interfac
 >>>>>>> 1056be1 (stattus)
 =======
 	w.Header().Set("Content-Type", "application-json")
+<<<<<<< HEAD
 >>>>>>> 35b894d (Merge omar with Mine)
 	w.WriteHeader(status)
+=======
+	if w.Header().Get("Content-Type") == "" {
+		w.Header().Set("Content-Type", "application-json")
+	}
+	if status != http.StatusOK {
+		w.WriteHeader(status)
+	}
+>>>>>>> c15a6da (tesT)
 	json.NewEncoder(w).Encode(map[string]any{
 		"status": msgStatus,
 		"data":   data,
@@ -88,15 +96,20 @@ func JsResponse(w http.ResponseWriter, status int, msgStatus bool, data interfac
 }
 
 func Checker(w http.ResponseWriter, r *http.Request) {
-	check := MiddleWear(w, r)
+	check, UID := MiddleWear(w, r)
 	status := 200
 	if !check {
 		status = http.StatusUnauthorized
 	}
+	userName, err := database.GetUsernameByUid(DB, UID)
+	if err != nil {
+		check = false
+		status = http.StatusUnauthorized
+	}
 	var data map[string]interface{}
 	if check {
-		data = map[string]interface{}{
-			"UserName": "",
+		data = map[string]any{
+			"UserName": userName,
 		}
 	}
 	JsResponse(w, status, check, data)
